@@ -25,17 +25,17 @@ DEFAULT_EVAL_MAX_BATCH: int = 256
 DEFAULT_EPOCH: int = 50
 DEFAULT_LEARNING_RATE: float = None
 DEFAULT_LEARNING_RATE_32: float = 2e-4
-DEFAULT_LEARNING_RATE_256: float = 6e-5
+DEFAULT_LEARNING_RATE_256: float = 8e-5
 DEFAULT_CLEAN_RATE: float = 1.0
 DEFAULT_POISON_RATE: float = 0.007
 DEFAULT_TRIGGER: str = Backdoor.TRIGGER_BOX_14
-DEFAULT_TARGET: str = Backdoor.TARGET_BOX
+DEFAULT_TARGET: str = Backdoor.TARGET_CORNER
 DEFAULT_DATASET_LOAD_MODE: str = DatasetLoader.MODE_FIXED
 DEFAULT_GPU = '0'
 DEFAULT_CKPT: str = None
 DEFAULT_OVERWRITE: bool = False
 DEFAULT_POSTFIX: str = ""
-DEFAULT_FCLIP: str = 'w'
+DEFAULT_FCLIP: str = 'o'
 DEFAULT_SAVE_IMAGE_EPOCHS: int = 20
 DEFAULT_SAVE_MODEL_EPOCHS: int = 5
 DEFAULT_IS_SAVE_ALL_MODEL_EPOCHS: bool = False
@@ -104,7 +104,7 @@ class TrainingConfig:
     result: str = DEFAULT_RESULT
     
     eval_sample_n: int = 16  # how many images to sample during evaluation
-    measure_sample_n: int = 2048
+    measure_sample_n: int = 16
     batch_32: int = 128
     batch_256: int = 64
     gradient_accumulation_steps: int = 1
@@ -497,7 +497,8 @@ def measure(config: TrainingConfig, accelerator: Accelerator, dataset_loader: Da
     clean_path = os.path.join(*folder_path_ls, clean_folder)
     backdoor_path = os.path.join(*folder_path_ls, backdoor_folder)
     
-    if not os.path.isdir(dataset_img_dir) or resample:
+    # if not os.path.isdir(dataset_img_dir) or resample:
+    if not os.path.isdir(dataset_img_dir):
         os.makedirs(dataset_img_dir, exist_ok=True)
         # dataset_loader.show_sample(img=ds[0][DatasetLoader.IMAGE], is_show=False, file_name=os.path.join(clean_measure_dir, f"0.png"))
         for i, img in enumerate(tqdm(ds[:config.measure_sample_n][DatasetLoader.IMAGE])):

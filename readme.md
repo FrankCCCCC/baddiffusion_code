@@ -30,6 +30,32 @@ wandb login --relogin --cloud <API Key>
 
 ### Run BadDiffusion
 
+Arguments
+- ``--project``: Project name for Wandb
+- ``--mode``: Train or test the model, choice: 'train', 'resume', 'sampling`, 'measure', and 'train+measure'
+    - ``train``: Train the model
+    - ``resume``: Resume the training
+    - ``measure``: Compute the FID and MSE score for the BadDiffusion from saved checkpoint, the ground truth samples will be saved under 'measure' folder automatically to compute FID score.
+    - ``train+measure``: Train the model and compute the FID and MSE score
+    - ``samling``: Generate clean samples and backdoor targets from saved checkpoint
+- ``--dataset``: Training dataset, choice: 'MNIST', 'CIFAR10', and 'CELEBA-HQ'
+- ``--batch``: Training batch size
+- ``--eval_max_batch``: Batch size of sampling, default: 256
+- ``--epoch``: Training epoch num, default: 50
+- ``--learning_rate``: Learning rate, default for 32 * 32 image: '2e-4', default for larger images: '8e-5'
+- ``--poison_rate``: Poison rate
+- ``--trigger``: Trigger pattern, default: 'BOX_14', choice: 'BOX_18', 'BOX_14', 'BOX_11', 'BOX_8', 'BOX_4', 'STOP_SIGN_18', 'STOP_SIGN_14', 'STOP_SIGN_11', 'STOP_SIGN_8', 'STOP_SIGN_4', 'GLASSES'
+- ``--target``: Target pattern, default: 'CORNER', choice: 'TRIGGER', 'SHIFT', 'CORNER', 'SHOE', 'HAT', 'CAT'
+- ``--gpu``: Specify GPU device
+- ``--ckpt``: Load the HuggingFace Diffusers pre-trained models or the saved checkpoint, default: 'DDPM-CIFAR10-32', choice: 'DDPM-CIFAR10-32', 'DDPM-CELEBA-HQ-256', or user specify checkpoint path
+- ``--fclip``: Force to clip in each step or not during sampling/measure, default: 'o'(without clipping)
+
+For example
+
+```bash
+python baddiffusion.py --project default --mode train+measure --dataset CIFAR10 --batch 128 --epoch 50 --poison_rate 0.1 --trigger BOX_14 --target HAT --ckpt DDPM-CIFAR10-32 --fclip o -o --gpu 0
+```
+
 ### Run Adversarial Neuron Pruning (ANP)
 
 

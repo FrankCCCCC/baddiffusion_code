@@ -382,13 +382,13 @@ class Backdoor():
     CAT_IMG = "static/cat_wo_bg.png"
     GLASSES_IMG = "static/glasses.png"
     
-    TARGET_FA = "FASHION"
+    TARGET_SHOE = "SHOE"
     TARGET_TG = "TRIGGER"
-    TARGET_BOX = "BOX"
+    TARGET_CORNER = "CORNER"
     # TARGET_BOX_MED = "BOX_MED"
     TARGET_SHIFT = "SHIFT"
     TARGET_HAT = "HAT"
-    TARGET_FEDORA_HAT = "FEDORA_HAT"
+    # TARGET_HAT = "HAT"
     TARGET_CAT = "CAT"
     
     TRIGGER_GAP_X = TRIGGER_GAP_Y = 2
@@ -633,17 +633,17 @@ class Backdoor():
             if trigger == None:
                 raise ValueError("trigger shouldn't be none")
             return Backdoor.__bg2grey(Backdoor.__roll(trigger.clone().detach(), dx=dx, dy=dy), vmin=vmin, vmax=vmax)
-        elif type == Backdoor.TARGET_BOX:
+        elif type == Backdoor.TARGET_CORNER:
             b1 = (None, None)
             b2 = (10, 10)
             return Backdoor.__bg2grey(trig=Backdoor.__get_grey_box_trig(b1=b1, b2=b2, channel=channel, image_size=image_size, vmin=vmin, vmax=vmax), vmin=vmin, vmax=vmax)
-        elif type == Backdoor.TARGET_FA:
+        elif type == Backdoor.TARGET_SHOE:
             trans = self.__get_transform(channel=channel, image_size=image_size, vmin=vmin, vmax=vmax)
             ds = FashionMNIST(root=self.__root, train=True, download=True, transform=trans)
             return Backdoor.__bg2grey(trig=ds[0][0], vmin=vmin, vmax=vmax)
+        # elif type == Backdoor.TARGET_HAT:
+        #     return self.__get_img_target(path="static/hat.png", channel=channel, image_size=image_size, vmin=vmin, vmax=vmax)
         elif type == Backdoor.TARGET_HAT:
-            return self.__get_img_target(path="static/hat.png", channel=channel, image_size=image_size, vmin=vmin, vmax=vmax)
-        elif type == Backdoor.TARGET_FEDORA_HAT:
             return self.__get_img_target(path="static/fedora-hat.png", channel=channel, image_size=image_size, vmin=vmin, vmax=vmax)
         elif type == Backdoor.TARGET_CAT:
             return self.__get_img_target(path=Backdoor.CAT_IMG, channel=channel, image_size=image_size, vmin=vmin, vmax=vmax)
@@ -774,8 +774,11 @@ if __name__ == "__main__":
     # GLASSES Trigger
     tr = backdoor.get_trigger(type=Backdoor.TRIGGER_GLASSES, channel=3, image_size=image_size, vmin=vmin, vmax=1)
     backdoor.show_image(img=tr)
-    # Hat Target
+    # Cat Target
     tg = backdoor.get_target(type=Backdoor.TARGET_CAT, trigger=tr, vmin=vmin, vmax=1)
+    backdoor.show_image(img=tg)
+    # Hat Target
+    tg = backdoor.get_target(type=Backdoor.TARGET_HAT, trigger=tr, vmin=vmin, vmax=1)
     backdoor.show_image(img=tg)
     
 # %%

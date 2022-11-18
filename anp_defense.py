@@ -119,11 +119,6 @@ def train_loop(config: Config, accelerator: Accelerator, model: nn.Module, noise
     # Test evaluate
     # pipeline = DDPMPipeline(unet=accelerator.unwrap_model(model), scheduler=noise_sched)        
     # sampling(config, 0, pipeline)
-    
-    # backdoor_batch = next(iter(backdoor_ds))
-    # backdoored_images = backdoor_batch['pixel_values'].to(model.device_ids[0])
-    # backdoor_targets = backdoor_batch["target"].to(model.device_ids[0])
-    # print(f"backdoor_targets shape: {backdoor_targets.shape}")
 
     # Now you train the model
     for epoch in range(int(start_epoch), int(config.epoch)):
@@ -183,13 +178,7 @@ def train_loop(config: Config, accelerator: Accelerator, model: nn.Module, noise
             if (epoch + 1) % config.save_image_epochs == 0:
                 sampling(config, epoch, pipeline)
                 measure(config=config, accelerator=accelerator, pipeline=pipeline, dataset_loader=dataset_loader, epoch=epoch)
-
-            # if (epoch + 1) % config.save_model_epochs == 0 or epoch == config.epoch - 1:
-            #     checkpoint(config=config, accelerator=accelerator, pipeline=pipeline, cur_epoch=epoch, cur_step=cur_step, repo=repo, commit_msg=f"Epoch {epoch}")
-    # except:
-    #     print(Log.error("Training process is interrupted by an error"))
-    #     print(traceback.format_exc())
-    # finally:
+                
     print(Log.info("Save model and sample images"))
     pipeline = DDPMPipeline(unet=accelerator.unwrap_model(model), scheduler=noise_sched)        
     if accelerator.is_main_process:
@@ -199,7 +188,6 @@ def train_loop(config: Config, accelerator: Accelerator, model: nn.Module, noise
     return pipeline
 
 if __name__ == "__main__":
-
     print(f"PyTorch detected number of availabel devices: {torch.cuda.device_count()}")
     dsl, data_loader, backdoor_dsl, backdoor_loader = get_data_loader(config=config)
     accelerator, model, perturb_model, optim, data_loader, noise_sched, lr_sched = init_training(config=config, data_loader=data_loader, dataset_loader=dsl)

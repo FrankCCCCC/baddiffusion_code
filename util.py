@@ -384,114 +384,114 @@ def path_gen(dirs: Union[str, os.PathLike], ckpts: List[str], datasets: List[str
                                         ls.append(os.path.join(dir, f'res_{ckpt}_{ds}_ep{ep}_c{float(clean_rate)}_p{float(poison_rate)}_{trigger}-{target}_{postfix}'))
     return ls
 
-COMET_WORKSPACE = "Backdoor_Diff"
-COMET_PROJECT_NAME = "Backdoor_Diff_CIFAR10"
+# COMET_WORKSPACE = "Backdoor_Diff"
+# COMET_PROJECT_NAME = "Backdoor_Diff_CIFAR10"
 
-class Dashboard:
-    """Record training/evaluation statistics to comet
-    :params config: dict
-    :params paras: namespace
-    :params log_dir: Path
-    """
-    def __init__(self, config, paras, log_dir, train_type, resume=False):
-        self.log_dir = log_dir
-        self.expkey_f = Path(self.log_dir, 'exp_key')
-        self.global_step = 1
+# class Dashboard:
+#     """Record training/evaluation statistics to comet
+#     :params config: dict
+#     :params paras: namespace
+#     :params log_dir: Path
+#     """
+#     def __init__(self, config, paras, log_dir, train_type, resume=False):
+#         self.log_dir = log_dir
+#         self.expkey_f = Path(self.log_dir, 'exp_key')
+#         self.global_step = 1
 
 
 
-        if resume:
-            assert self.expkey_f.exists(), f"Cannot find comet exp key in {self.log_dir}"
-            with open(Path(self.log_dir,'exp_key'),'r') as f:
-                exp_key = f.read().strip()
-            self.exp = ExistingExperiment(previous_experiment=exp_key,
-                                                project_name=COMET_PROJECT_NAME, 
-                                                workspace=COMET_WORKSPACE,
-                                                auto_output_logging=None,
-                                                auto_metric_logging=None,
-                                                display_summary=False,
-                                                )
-        else:
-            self.exp = Experiment(project_name=COMET_PROJECT_NAME,
-                                  workspace=COMET_WORKSPACE,
-                                  auto_output_logging=None,
-                                  auto_metric_logging=None,
-                                  display_summary=False,
-                                  )
-            with open(self.expkey_f, 'w') as f:
-                print(self.exp.get_key(),file=f)
+#         if resume:
+#             assert self.expkey_f.exists(), f"Cannot find comet exp key in {self.log_dir}"
+#             with open(Path(self.log_dir,'exp_key'),'r') as f:
+#                 exp_key = f.read().strip()
+#             self.exp = ExistingExperiment(previous_experiment=exp_key,
+#                                                 project_name=COMET_PROJECT_NAME, 
+#                                                 workspace=COMET_WORKSPACE,
+#                                                 auto_output_logging=None,
+#                                                 auto_metric_logging=None,
+#                                                 display_summary=False,
+#                                                 )
+#         else:
+#             self.exp = Experiment(project_name=COMET_PROJECT_NAME,
+#                                   workspace=COMET_WORKSPACE,
+#                                   auto_output_logging=None,
+#                                   auto_metric_logging=None,
+#                                   display_summary=False,
+#                                   )
+#             with open(self.expkey_f, 'w') as f:
+#                 print(self.exp.get_key(),file=f)
 
-            self.exp.log_other('seed', paras.seed)
-            self.log_config(config)
+#             self.exp.log_other('seed', paras.seed)
+#             self.log_config(config)
             
-            ## The following is the customized info logging (can safely remove it, here is just a demo)
-            if train_type == 'evaluation':
-                if paras.pretrain:
-                    self.exp.set_name(f"{paras.pretrain_suffix}-{paras.eval_suffix}")
-                    self.exp.add_tags([paras.pretrain_suffix, config['solver']['setting'], paras.lang, paras.algo, paras.eval_suffix])
-                    if paras.pretrain_model_path:
-                        self.exp.log_other("pretrain-model-path", paras.pretrain_model_path)
-                    else:
-                        self.exp.log_other("pretrain-runs", paras.pretrain_runs)
-                        self.exp.log_other("pretrain-setting", paras.pretrain_setting)
-                        self.exp.log_other("pretrain-tgt-lang", paras.pretrain_tgt_lang)
-                else:
-                    self.exp.set_name(paras.eval_suffix)
-                    self.exp.add_tags(["mono", config['solver']['setting'], paras.lang])
-            else: # pretrain
-                self.exp.set_name(paras.pretrain_suffix)
-                self.exp.log_others({f"lang{i}": k for i,k in enumerate(paras.pretrain_langs)})
-                self.exp.log_other('lang', paras.tgt_lang)
-                self.exp.add_tags([paras.algo,config['solver']['setting'], paras.tgt_lang])
+#             ## The following is the customized info logging (can safely remove it, here is just a demo)
+#             if train_type == 'evaluation':
+#                 if paras.pretrain:
+#                     self.exp.set_name(f"{paras.pretrain_suffix}-{paras.eval_suffix}")
+#                     self.exp.add_tags([paras.pretrain_suffix, config['solver']['setting'], paras.lang, paras.algo, paras.eval_suffix])
+#                     if paras.pretrain_model_path:
+#                         self.exp.log_other("pretrain-model-path", paras.pretrain_model_path)
+#                     else:
+#                         self.exp.log_other("pretrain-runs", paras.pretrain_runs)
+#                         self.exp.log_other("pretrain-setting", paras.pretrain_setting)
+#                         self.exp.log_other("pretrain-tgt-lang", paras.pretrain_tgt_lang)
+#                 else:
+#                     self.exp.set_name(paras.eval_suffix)
+#                     self.exp.add_tags(["mono", config['solver']['setting'], paras.lang])
+#             else: # pretrain
+#                 self.exp.set_name(paras.pretrain_suffix)
+#                 self.exp.log_others({f"lang{i}": k for i,k in enumerate(paras.pretrain_langs)})
+#                 self.exp.log_other('lang', paras.tgt_lang)
+#                 self.exp.add_tags([paras.algo,config['solver']['setting'], paras.tgt_lang])
 
-        ##slurm-related, record the jobid
-        hostname = os.uname()[1]
-        if len(hostname.split('.')) == 2 and hostname.split('.')[1] == 'speech':
-            logger.notice(f"Running on Battleship {hostname}")
-            self.exp.log_other('jobid',int(os.getenv('PMIX_NAMESPACE').split('.')[2]))
-        else:
-            logger.notice(f"Running on {hostname}")
+#         ##slurm-related, record the jobid
+#         hostname = os.uname()[1]
+#         if len(hostname.split('.')) == 2 and hostname.split('.')[1] == 'speech':
+#             logger.notice(f"Running on Battleship {hostname}")
+#             self.exp.log_other('jobid',int(os.getenv('PMIX_NAMESPACE').split('.')[2]))
+#         else:
+#             logger.notice(f"Running on {hostname}")
 
 
-    def log_config(self,config):
-        #NOTE: depth at most 2
-        for block in config:
-            for n, p in config[block].items():
-                if isinstance(p, dict):
-                    self.exp.log_parameters(p, prefix=f'{block}-{n}')
-                else:
-                    self.exp.log_parameter(f'{block}-{n}', p)
+#     def log_config(self,config):
+#         #NOTE: depth at most 2
+#         for block in config:
+#             for n, p in config[block].items():
+#                 if isinstance(p, dict):
+#                     self.exp.log_parameters(p, prefix=f'{block}-{n}')
+#                 else:
+#                     self.exp.log_parameter(f'{block}-{n}', p)
 
-    def set_status(self,status):
-        ## pretraining/ pretrained/ training/ training(SIGINT)/ trained/ decode/ completed
-        self.exp.log_other('status',status)
+#     def set_status(self,status):
+#         ## pretraining/ pretrained/ training/ training(SIGINT)/ trained/ decode/ completed
+#         self.exp.log_other('status',status)
 
-    def step(self, n=1):
-        self.global_step += n
+#     def step(self, n=1):
+#         self.global_step += n
 
-    def set_step(self, global_step=1):
-        self.global_step = global_step
+#     def set_step(self, global_step=1):
+#         self.global_step = global_step
 
-    def log_info(self, prefix, info):
-        self.exp.log_metrics({k: float(v) for k, v in info.items()}, prefix=prefix, step=self.global_step)
+#     def log_info(self, prefix, info):
+#         self.exp.log_metrics({k: float(v) for k, v in info.items()}, prefix=prefix, step=self.global_step)
 
-    def log_step(self):
-        self.exp.log_other('step',self.global_step)
+#     def log_step(self):
+#         self.exp.log_other('step',self.global_step)
 
-    def add_figure(self, fig_name, data):
-        self.exp.log_figure(figure_name=fig_name, figure=data, step=self.global_step)
+#     def add_figure(self, fig_name, data):
+#         self.exp.log_figure(figure_name=fig_name, figure=data, step=self.global_step)
 
-    def check(self):
-        if not self.exp.alive:
-            logger.warning("Comet logging stopped")
+#     def check(self):
+#         if not self.exp.alive:
+#             logger.warning("Comet logging stopped")
 
-# %%
-if __name__ == '__main__':
-    data = torch.load("CIFAR10_ep500_p0.0_SM_BOX-TRIGGER/clean_samples.pkl")
+# # %%
+# if __name__ == '__main__':
+#     data = torch.load("CIFAR10_ep500_p0.0_SM_BOX-TRIGGER/clean_samples.pkl")
     
-    samples = Samples(samples=data, save_dir="test")
-    # samples.load(file_path="samples.pkl")
+#     samples = Samples(samples=data, save_dir="test")
+#     # samples.load(file_path="samples.pkl")
     
-    samples.plot_series(slice(0, None), vmin=-1, vmax=1, prefix_img_name="sample_tt", save_mode=Samples.SAVE_FIRST_LAST, show_mode=Samples.SHOW_FIRST_LAST, animate_name="movie_t")
+#     samples.plot_series(slice(0, None), vmin=-1, vmax=1, prefix_img_name="sample_tt", save_mode=Samples.SAVE_FIRST_LAST, show_mode=Samples.SHOW_FIRST_LAST, animate_name="movie_t")
     
 # %%

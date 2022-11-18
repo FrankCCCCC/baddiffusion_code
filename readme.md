@@ -49,13 +49,39 @@ Arguments
 - ``--gpu``: Specify GPU device
 - ``--ckpt``: Load the HuggingFace Diffusers pre-trained models or the saved checkpoint, default: 'DDPM-CIFAR10-32', choice: 'DDPM-CIFAR10-32', 'DDPM-CELEBA-HQ-256', or user specify checkpoint path
 - ``--fclip``: Force to clip in each step or not during sampling/measure, default: 'o'(without clipping)
+- ``--output_dir``: Output file path, default: '.'
 
-For example
+For example, if we want to backdoor a DM pre-trained on CIFAR10 with **Grey Box** trigger and **Hat** target, we can use the following command
 
 ```bash
 python baddiffusion.py --project default --mode train+measure --dataset CIFAR10 --batch 128 --epoch 50 --poison_rate 0.1 --trigger BOX_14 --target HAT --ckpt DDPM-CIFAR10-32 --fclip o -o --gpu 0
 ```
 
+If we want to generate the clean samples and backdoor targets from a backdoored DM, use the following command
+
+```bash
+python baddiffusion.py --project default --mode measure --ckpt res_DDPM-CIFAR10-32_CIFAR10_ep50_c1.0_p0.1_BOX_14-HAT --fclip o --gpu 0
+```
+
+Or simply gernate the samples
+
+```bash
+python baddiffusion.py --project default --mode sampling --ckpt res_DDPM-CIFAR10-32_CIFAR10_ep50_c1.0_p0.1_BOX_14-HAT --fclip o --gpu 0
+```
+
 ### Run Adversarial Neuron Pruning (ANP)
 
+Arguments
+- ``--project``: Project name for Wandb
+- ``--epoch``: Training epoch num, default: 50
+- ``--learning_rate``: Learning rate, default: '1e-4'
+- ``--perturb_budget``: Perturbation budget, default: '4.0'
+- ``--gpu``: Specify GPU device
+- ``--ckpt``: Load the HuggingFace Diffusers pre-trained models or the saved checkpoint
+- ``--output_dir``: Output file path, default: '.'
 
+If we want to defense the trained model on the last section, we can use the following command
+
+```bash
+python anp_defense.py --project default --epoch 5 --learning_rate 1e-4 --perturb_budget 4.0 --ckpt res_DDPM-CIFAR10-32_CIFAR10_ep50_c1.0_p0.1_BOX_14-HAT --gpu 0
+```

@@ -40,7 +40,7 @@ if __name__ == "__main__":
                     '--mode': ['train+measure'],
                     '--dataset': ['CELEBA-HQ'],
                     # '--batch': [128],
-                    '--batch': [64],
+                    '--batch': [2],
                     '--epoch': [1],
                     '--clean_rate': [1],
                     '--poison_rate': [1.0],
@@ -54,7 +54,8 @@ if __name__ == "__main__":
                 },
                 'Async':{
                     # '--gpu': ['0', '1', '0', '1', '0', '1']
-                    '--gpu': ['0', '1', '2', '3',]
+                    # '--gpu': ['0', '1', '2', '3',]
+                    '--gpu': ['0,1']
                 }
             }, 
         },

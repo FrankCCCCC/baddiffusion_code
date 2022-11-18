@@ -24,7 +24,7 @@ class Config:
     is_lr_sched: bool = False
     clip: bool = True
     gpu: str = '0'
-    perturb_budget: float = 0.3
+    perturb_budget: float = 4.0
     tag: str = None
     
     measure_sample_n: int = 128
@@ -60,7 +60,7 @@ def get_config():
     parser.add_argument('--epoch', '-e', type=int, default=config.epoch, help=f"Training epochs, default: {config.epoch}")
     parser.add_argument('--learning_rate', '-lr', type=float, default=config.learning_rate, help=f"Learning rate, default: {config.learning_rate}")
     parser.add_argument('--lr_sched', '-sch', action='store_true', help=f"Use LR Scheduler")
-    parser.add_argument('--perturb_budget', '-pb', type=float, default=config.perturb_budget, help=f"Learning rate, default: {config.learning_rate}")
+    parser.add_argument('--perturb_budget', '-pb', type=float, default=config.perturb_budget, help=f"Perturbation budget, default: {config.perturb_budget}")
     parser.add_argument('--output_dir', '-od', type=str, help=f"Output directory")
     parser.add_argument('--tag', '-t', type=str, help=f"Additional information added on the name")
     parser.add_argument('--gpu', '-g', type=str, default=config.gpu, help=f"GPU usage, default for train/resume: {config.gpu}")

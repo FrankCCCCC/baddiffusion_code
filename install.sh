@@ -1,6 +1,6 @@
 pip install pyarrow==6.0.1
 # pip install accelerate comet-ml matplotlib datasets tqdm tensorboard tensorboardX torchvision tensorflow-datasets einops pytorch-fid joblib PyYAML kaggle wandb torchsummary torchinfo
-pip -r requirements.txt
+pip install -r requirements.txt
 
 cd diffusers
 pip install .
